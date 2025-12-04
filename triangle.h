@@ -7,17 +7,37 @@
 class triangle : public hittable
 {
 public:
-    point3 v0, v1, v2;
+    ray v0_moving, v1_moving, v2_moving;
     shared_ptr<material> mat;
 
+    // Stationary triangle
     triangle(const point3 &_v0, const point3 &_v1, const point3 &_v2,
              shared_ptr<material> m)
-        : v0(_v0), v1(_v1), v2(_v2), mat(m)
+        : v0_moving(_v0, vec3(0, 0, 0), 0),
+          v1_moving(_v1, vec3(0, 0, 0), 0),
+          v2_moving(_v2, vec3(0, 0, 0), 0),
+          mat(m)
+    {
+    }
+
+    // Moving triangle (motion blur)
+    triangle(const point3 &v0_start, const point3 &v1_start, const point3 &v2_start,
+             const point3 &v0_end, const point3 &v1_end, const point3 &v2_end,
+             shared_ptr<material> m)
+        : v0_moving(v0_start, v0_end - v0_start, 0),
+          v1_moving(v1_start, v1_end - v1_start, 0),
+          v2_moving(v2_start, v2_end - v2_start, 0),
+          mat(m)
     {
     }
 
     virtual bool hit(const ray &r, interval t_range, hit_record &rec) const override
     {
+        // Evaluate vertices at the ray's time
+        point3 v0 = v0_moving.at(r.time());
+        point3 v1 = v1_moving.at(r.time());
+        point3 v2 = v2_moving.at(r.time());
+
         // Möller–Trumbore algorithm
         vec3 v0v1 = v1 - v0;
         vec3 v0v2 = v2 - v0;
