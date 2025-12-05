@@ -75,7 +75,7 @@ int main()
     cam.samples_per_pixel = 500;
     cam.max_depth = 50;
 
-    cam.vfov = 100;
+    cam.vfov = 10;
     cam.lookfrom = point3(13, 2, 3);
     cam.lookat = point3(0, 0, 0);
     cam.vup = vec3(0, 1, 0);

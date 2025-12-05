@@ -7,9 +7,6 @@
 class triangle : public hittable
 {
 public:
-    ray v0_moving, v1_moving, v2_moving;
-    shared_ptr<material> mat;
-
     // Stationary triangle
     triangle(const point3 &_v0, const point3 &_v1, const point3 &_v2,
              shared_ptr<material> m)
@@ -18,9 +15,10 @@ public:
           v2_moving(_v2, vec3(0, 0, 0), 0),
           mat(m)
     {
+        bbox = aabb(_v0, _v1, _v2);
     }
 
-    // Moving triangle (motion blur)
+    // Moving triangle
     triangle(const point3 &v0_start, const point3 &v1_start, const point3 &v2_start,
              const point3 &v0_end, const point3 &v1_end, const point3 &v2_end,
              shared_ptr<material> m)
@@ -29,6 +27,18 @@ public:
           v2_moving(v2_start, v2_end - v2_start, 0),
           mat(m)
     {
+        point3 a0 = v0_start;
+        point3 b0 = v1_start;
+        point3 c0 = v2_start;
+
+        point3 a1 = v0_end;
+        point3 b1 = v1_end;
+        point3 c1 = v2_end;
+
+        aabb box_start(a0, b0, c0);
+        aabb box_end(a1, b1, c1);
+
+        bbox = aabb(box_start, box_end);
     }
 
     virtual bool hit(const ray &r, interval t_range, hit_record &rec) const override
@@ -70,6 +80,16 @@ public:
 
         return true;
     }
+
+    aabb bounding_box() const override
+    {
+        return bbox;
+    }
+
+private:
+    ray v0_moving, v1_moving, v2_moving;
+    shared_ptr<material> mat;
+    aabb bbox;
 };
 
 #endif

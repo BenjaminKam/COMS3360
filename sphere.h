@@ -9,12 +9,22 @@ class sphere : public hittable
 public:
     // Stationary Sphere
     sphere(const point3 &static_center, double radius, shared_ptr<material> mat)
-        : center(static_center, vec3(0, 0, 0)), radius(std::fmax(0, radius)), mat(mat) {}
+        : center(static_center, vec3(0, 0, 0)), radius(std::fmax(0, radius)), mat(mat)
+    {
+        auto radius_vector = vec3(radius, radius, radius);
+        bbox = aabb(static_center - radius_vector, static_center + radius_vector);
+    }
 
     // Moving Sphere
     sphere(const point3 &center1, const point3 &center2, double radius,
            shared_ptr<material> mat)
-        : center(center1, center2 - center1), radius(std::fmax(0, radius)), mat(mat) {}
+        : center(center1, center2 - center1), radius(std::fmax(0, radius)), mat(mat)
+    {
+        auto radius_vector = vec3(radius, radius, radius);
+        aabb box1(center.at(0) - radius_vector, center.at(0) + radius_vector);
+        aabb box2(center.at(1) - radius_vector, center.at(1) + radius_vector);
+        bbox = aabb(box1, box2);
+    }
 
     bool hit(const ray &r, interval ray_t, hit_record &rec) const override
     {
@@ -48,10 +58,13 @@ public:
         return true;
     }
 
+    aabb bounding_box() const override { return bbox; }
+
 private:
     ray center;
     double radius;
     shared_ptr<material> mat;
+    aabb bbox;
 };
 
 #endif
