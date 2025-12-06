@@ -1,15 +1,13 @@
 #ifndef TRIANGLE_H
 #define TRIANGLE_H
 
+#include "aabb.h"
 #include "hittable.h"
 #include "helper.h"
 
 class triangle : public hittable
 {
 public:
-    ray v0_moving, v1_moving, v2_moving;
-    shared_ptr<material> mat;
-
     // Stationary triangle
     triangle(const point3 &_v0, const point3 &_v1, const point3 &_v2,
              shared_ptr<material> m)
@@ -18,6 +16,7 @@ public:
           v2_moving(_v2, vec3(0, 0, 0), 0),
           mat(m)
     {
+        bbox = aabb(_v0, _v1, _v2);
     }
 
     // Moving triangle (motion blur)
@@ -29,6 +28,28 @@ public:
           v2_moving(v2_start, v2_end - v2_start, 0),
           mat(m)
     {
+        // Evaluate vertices at time 0
+        point3 a0 = v0_start;
+        point3 b0 = v1_start;
+        point3 c0 = v2_start;
+
+        // Evaluate vertices at time 1
+        point3 a1 = v0_end;
+        point3 b1 = v1_end;
+        point3 c1 = v2_end;
+
+        // Two boxes: start-time triangle, end-time triangle
+        aabb box_start(a0, b0, c0);
+        aabb box_end(a1, b1, c1);
+
+        // Final AABB must contain both
+        bbox = aabb(box_start, box_end);
+    }
+
+    // Return bounding box for BVH
+    aabb bounding_box() const override
+    {
+        return bbox;
     }
 
     virtual bool hit(const ray &r, interval t_range, hit_record &rec) const override
@@ -70,6 +91,11 @@ public:
 
         return true;
     }
+
+private:
+    ray v0_moving, v1_moving, v2_moving;
+    shared_ptr<material> mat;
+    aabb bbox;
 };
 
 #endif

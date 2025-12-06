@@ -1,22 +1,30 @@
 #ifndef BVH_H
 #define BVH_H
 
-#include <algorithm>
-
 #include "aabb.h"
 #include "hittable.h"
 #include "hittable_list.h"
+
+#include <algorithm>
 
 class bvh_node : public hittable
 {
 public:
     bvh_node(hittable_list list) : bvh_node(list.objects, 0, list.objects.size())
     {
+        // There's a C++ subtlety here. This constructor (without span indices) creates an
+        // implicit copy of the hittable list, which we will modify. The lifetime of the copied
+        // list only extends until this constructor exits. That's OK, because we only need to
+        // persist the resulting bounding volume hierarchy.
     }
 
     bvh_node(std::vector<shared_ptr<hittable>> &objects, size_t start, size_t end)
     {
-        int axis = random_int(0, 2);
+        bbox = aabb::empty;
+        for (size_t object_index = start; object_index < end; object_index++)
+            bbox = aabb(bbox, objects[object_index]->bounding_box());
+
+        int axis = bbox.longest_axis();
 
         auto comparator = (axis == 0)   ? box_x_compare
                           : (axis == 1) ? box_y_compare
@@ -41,8 +49,6 @@ public:
             left = make_shared<bvh_node>(objects, start, mid);
             right = make_shared<bvh_node>(objects, mid, end);
         }
-
-        bbox = aabb(left->bounding_box(), right->bounding_box());
     }
 
     bool hit(const ray &r, interval ray_t, hit_record &rec) const override
