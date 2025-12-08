@@ -27,7 +27,7 @@ public:
     {
         initialize();
 
-        std::ofstream out_file("image1.ppm");
+        std::ofstream out_file("image2.ppm");
 
         out_file << "P3\n"
                  << image_width << ' ' << image_height << "\n255\n";
