@@ -51,8 +51,8 @@ public:
         rec.t = rec1.t + hit_distance / ray_length;
         rec.p = r.at(rec.t);
 
-        rec.normal = vec3(1, 0, 0); // arbitrary
-        rec.front_face = true;      // also arbitrary
+        rec.normal = vec3(1, 0, 0);
+        rec.front_face = true;
         rec.mat = phase_function;
 
         return true;

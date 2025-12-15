@@ -27,7 +27,7 @@ public:
     {
         initialize();
 
-        std::ofstream out_file("final_scene.ppm");
+        std::ofstream out_file("ppm/final_scene.ppm");
 
         out_file << "P3\n"
                  << image_width << ' ' << image_height << "\n255\n";
@@ -51,8 +51,6 @@ public:
     }
 
 private:
-    /* Private Camera Variables Here */
-
     int image_height;           // Rendered image height
     double pixel_samples_scale; // Color scale factor for a sum of pixel samples
     point3 center;              // Camera center
@@ -117,7 +115,6 @@ private:
 
     vec3 sample_square() const
     {
-        // Returns the vector to a random point in the [-.5,-.5]-[+.5,+.5] unit square.
         return vec3(random_double() - 0.5, random_double() - 0.5, 0);
     }
 

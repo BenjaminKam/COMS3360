@@ -13,14 +13,14 @@
 #include <cstdlib>
 #include <iostream>
 
-class rtw_image
+class image_helper
 {
 public:
-    rtw_image() {}
+    image_helper() {}
 
-    rtw_image(const char *image_filename)
+    image_helper(const char *image_filename)
     {
-        // Loads image data from the specified file. If the RTW_IMAGES environment variable is
+        // Loads image data from the specified file. If the image_helperS environment variable is
         // defined, looks only in that directory for the image file. If the image was not found,
         // searches for the specified image file first from the current directory, then in the
         // images/ subdirectory, then the _parent's_ images/ subdirectory, and then _that_
@@ -28,7 +28,7 @@ public:
         // width() and height() will return 0.
 
         auto filename = std::string(image_filename);
-        auto imagedir = getenv("RTW_IMAGES");
+        auto imagedir = getenv("image_helperS");
 
         // Hunt for the image file in some likely locations.
         if (imagedir && load(std::string(imagedir) + "/" + image_filename))
@@ -53,7 +53,7 @@ public:
         std::cerr << "ERROR: Could not load image file '" << image_filename << "'.\n";
     }
 
-    ~rtw_image()
+    ~image_helper()
     {
         delete[] bdata;
         STBI_FREE(fdata);
@@ -82,8 +82,6 @@ public:
 
     const unsigned char *pixel_data(int x, int y) const
     {
-        // Return the address of the three RGB bytes of the pixel at x,y. If there is no image
-        // data, returns magenta.
         static unsigned char magenta[] = {255, 0, 255};
         if (bdata == nullptr)
             return magenta;
@@ -96,10 +94,10 @@ public:
 
 private:
     const int bytes_per_pixel = 3;
-    float *fdata = nullptr;         // Linear floating point pixel data
-    unsigned char *bdata = nullptr; // Linear 8-bit pixel data
-    int image_width = 0;            // Loaded image width
-    int image_height = 0;           // Loaded image height
+    float *fdata = nullptr;
+    unsigned char *bdata = nullptr;
+    int image_width = 0;
+    int image_height = 0;
     int bytes_per_scanline = 0;
 
     static int clamp(int x, int low, int high)
@@ -123,14 +121,8 @@ private:
 
     void convert_to_bytes()
     {
-        // Convert the linear floating point pixel data to bytes, storing the resulting byte
-        // data in the `bdata` member.
-
         int total_bytes = image_width * image_height * bytes_per_pixel;
         bdata = new unsigned char[total_bytes];
-
-        // Iterate through all pixel components, converting from [0.0, 1.0] float values to
-        // unsigned [0, 255] byte values.
 
         auto *bptr = bdata;
         auto *fptr = fdata;

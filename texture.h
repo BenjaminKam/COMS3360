@@ -58,17 +58,21 @@ private:
 class image_texture : public texture
 {
 public:
-    image_texture(const char *filename) : image(filename) {}
+    image_texture(const char *filename) : image(filename)
+    {
+        if (image.width() <= 0 || image.height() <= 0)
+        {
+            std::cerr << "ERROR: Failed to load texture: " << filename << "\n";
+        }
+    }
 
     color value(double u, double v, const point3 &p) const override
     {
-        // If we have no texture data, then return solid cyan as a debugging aid.
         if (image.height() <= 0)
             return color(0, 1, 1);
 
-        // Clamp input texture coordinates to [0,1] x [1,0]
         u = interval(0, 1).clamp(u);
-        v = 1.0 - interval(0, 1).clamp(v); // Flip V to image coordinates
+        v = 1.0 - interval(0, 1).clamp(v);
 
         auto i = int(u * image.width());
         auto j = int(v * image.height());
@@ -79,7 +83,7 @@ public:
     }
 
 private:
-    rtw_image image;
+    image_helper image;
 };
 
 class noise_texture : public texture

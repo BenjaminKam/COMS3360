@@ -8,7 +8,7 @@ class aabb
 public:
     interval x, y, z;
 
-    aabb() {} // The default AABB is empty, since intervals are empty by default.
+    aabb() {}
 
     aabb(const interval &x, const interval &y, const interval &z)
         : x(x), y(y), z(z)
@@ -18,8 +18,6 @@ public:
 
     aabb(const point3 &a, const point3 &b)
     {
-        // Treat the two points a and b as extrema for the bounding box, so we don't require a
-        // particular minimum/maximum coordinate order.
 
         x = (a[0] <= b[0]) ? interval(a[0], b[0]) : interval(b[0], a[0]);
         y = (a[1] <= b[1]) ? interval(a[1], b[1]) : interval(b[1], a[1]);
@@ -37,17 +35,14 @@ public:
 
     aabb(const point3 &a, const point3 &b, const point3 &c)
     {
-        // Start each axis interval as a degenerate interval at vertex a.
         interval ix(a.x(), a.x());
         interval iy(a.y(), a.y());
         interval iz(a.z(), a.z());
 
-        // Merge vertex b
         ix = interval(ix, interval(b.x(), b.x()));
         iy = interval(iy, interval(b.y(), b.y()));
         iz = interval(iz, interval(b.z(), b.z()));
 
-        // Merge vertex c
         ix = interval(ix, interval(c.x(), c.x()));
         iy = interval(iy, interval(c.y(), c.y()));
         iz = interval(iz, interval(c.z(), c.z()));
@@ -102,8 +97,6 @@ public:
 
     int longest_axis() const
     {
-        // Returns the index of the longest axis of the bounding box.
-
         if (x.size() > y.size())
             return x.size() > z.size() ? 0 : 2;
         else
@@ -115,8 +108,6 @@ public:
 private:
     void pad_to_minimums()
     {
-        // Adjust the AABB so that no side is narrower than some delta, padding if necessary.
-
         double delta = 0.0001;
         if (x.size() < delta)
             x = x.expand(delta);

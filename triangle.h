@@ -19,13 +19,27 @@ public:
         bbox = aabb(_v0, _v1, _v2);
     }
 
+    triangle(const point3 &_v0, const point3 &_v1, const point3 &_v2,
+             const vec2 &uv0, const vec2 &uv1, const vec2 &uv2,
+             shared_ptr<material> m)
+        : v0_moving(_v0, vec3(0, 0, 0), 0),
+          v1_moving(_v1, vec3(0, 0, 0), 0),
+          v2_moving(_v2, vec3(0, 0, 0), 0),
+          uv0(uv0), uv1(uv1), uv2(uv2),
+          mat(m)
+    {
+        bbox = aabb(_v0, _v1, _v2);
+    }
+
     // Moving triangle (motion blur)
     triangle(const point3 &v0_start, const point3 &v1_start, const point3 &v2_start,
              const point3 &v0_end, const point3 &v1_end, const point3 &v2_end,
+             const vec2 &uv0, const vec2 &uv1, const vec2 &uv2,
              shared_ptr<material> m)
         : v0_moving(v0_start, v0_end - v0_start, 0),
           v1_moving(v1_start, v1_end - v1_start, 0),
           v2_moving(v2_start, v2_end - v2_start, 0),
+          uv0(uv0), uv1(uv1), uv2(uv2),
           mat(m)
     {
         // Evaluate vertices at time 0
@@ -38,15 +52,12 @@ public:
         point3 b1 = v1_end;
         point3 c1 = v2_end;
 
-        // Two boxes: start-time triangle, end-time triangle
         aabb box_start(a0, b0, c0);
         aabb box_end(a1, b1, c1);
 
-        // Final AABB must contain both
         bbox = aabb(box_start, box_end);
     }
 
-    // Return bounding box for BVH
     aabb bounding_box() const override
     {
         return bbox;
@@ -54,7 +65,6 @@ public:
 
     virtual bool hit(const ray &r, interval t_range, hit_record &rec) const override
     {
-        // Evaluate vertices at the ray's time
         point3 v0 = v0_moving.at(r.time());
         point3 v1 = v1_moving.at(r.time());
         point3 v2 = v2_moving.at(r.time());
@@ -85,6 +95,11 @@ public:
 
         rec.t = t;
         rec.p = r.at(t);
+
+        double w = 1 - u - v;
+        rec.u = w * uv0.x() + u * uv1.x() + v * uv2.x();
+        rec.v = w * uv0.y() + u * uv1.y() + v * uv2.y();
+
         rec.normal = unit_vector(cross(v0v1, v0v2));
         rec.set_face_normal(r, rec.normal);
         rec.mat = mat;
@@ -96,6 +111,7 @@ private:
     ray v0_moving, v1_moving, v2_moving;
     shared_ptr<material> mat;
     aabb bbox;
+    vec2 uv0, uv1, uv2;
 };
 
 #endif
