@@ -1,4 +1,6 @@
-Final project for COMS 3360 at Iowa State University
+# COMS 3360 Computer Graphics
+
+### Final project for COMS 3360 at Iowa State University
 
 The features implemented in my ray tracer:
 
