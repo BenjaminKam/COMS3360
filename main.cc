@@ -92,6 +92,77 @@ void camera_2()
     cam.render(world);
 }
 
+void camera_3()
+{
+    hittable_list world;
+
+    auto floor_tex = make_shared<checker_texture>(
+        0.5,
+        color(0.2, 0.3, 0.1),
+        color(0.9, 0.9, 0.9));
+    auto floor_mat = make_shared<lambertian>(floor_tex);
+    world.add(make_shared<sphere>(point3(0, -1000, 0), 1000, floor_mat));
+
+    // Two spheres: one close, one far
+    auto red = make_shared<lambertian>(color(0.8, 0.1, 0.1));
+    auto blue = make_shared<lambertian>(color(0.1, 0.1, 0.8));
+
+    world.add(make_shared<sphere>(point3(-1.5, 1, 0), 1.0, red));
+    world.add(make_shared<sphere>(point3(1.5, 1, -4), 1.0, blue));
+
+    camera cam;
+    cam.aspect_ratio = 16.0 / 9.0;
+    cam.image_width = 400;
+    cam.samples_per_pixel = 100;
+    cam.max_depth = 50;
+
+    cam.vfov = 20;
+    cam.lookfrom = point3(0, 2, 5);
+    cam.lookat = point3(0, 1, -2);
+    cam.vup = vec3(0, 1, 0);
+
+    cam.defocus_angle = 0;
+    cam.focus_dist = 5.0;
+    cam.background = color(0.7, 0.8, 1.0);
+
+    cam.render(world);
+}
+
+void camera_4()
+{
+    hittable_list world;
+
+    auto floor_tex = make_shared<checker_texture>(
+        0.5,
+        color(0.2, 0.3, 0.1),
+        color(0.9, 0.9, 0.9));
+    auto floor_mat = make_shared<lambertian>(floor_tex);
+    world.add(make_shared<sphere>(point3(0, -1000, 0), 1000, floor_mat));
+
+    // Two spheres: one close, one far
+    auto red = make_shared<lambertian>(color(0.8, 0.1, 0.1));
+    auto blue = make_shared<lambertian>(color(0.1, 0.1, 0.8));
+
+    world.add(make_shared<sphere>(point3(-1.5, 1, 0), 1.0, red));
+    world.add(make_shared<sphere>(point3(1.5, 1, -4), 1.0, blue));
+
+    camera cam;
+    cam.aspect_ratio = 16.0 / 9.0;
+    cam.image_width = 400;
+    cam.samples_per_pixel = 200;
+    cam.max_depth = 50;
+
+    cam.vfov = 20;
+    cam.lookfrom = point3(0, 2, 5);
+    cam.lookat = point3(0, 1, -2);
+    cam.vup = vec3(0, 1, 0);
+
+    cam.defocus_angle = 1.0;
+    cam.focus_dist = 4.0;
+    cam.background = color(0.7, 0.8, 1.0);
+    cam.render(world);
+}
+
 void antialiasing(int spp)
 {
     hittable_list world;
@@ -669,7 +740,7 @@ void final_scene()
 
 int main()
 {
-    switch (9)
+    switch (18)
     {
     case 1:
         camera_1();
@@ -737,6 +808,14 @@ int main()
 
     case 17:
         motion_blur_purple_sphere();
+        break;
+
+    case 18:
+        camera_3();
+        break;
+
+    case 19:
+        camera_4();
         break;
     }
 }

@@ -27,7 +27,7 @@ public:
     {
         initialize();
 
-        std::ofstream out_file("ppm/final_scene.ppm");
+        std::ofstream out_file("ppm/camera_3.ppm");
 
         out_file << "P3\n"
                  << image_width << ' ' << image_height << "\n255\n";
